@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blind Spot & Filling-In Demo</title>
+    <style>
+        /* Matches JND_Lab.html Styles */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: #121212; 
+            padding: 40px; 
+            color: #eee; 
+            overflow-x: hidden; 
+            position: relative; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+
+        .instructions { 
+            text-align: center; 
+            max-width: 900px; 
+            margin-bottom: 30px;
+            color: #888;
+            font-size: 18px;
+        }
+        
+        .instructions b { color: #00ffcc; }
+
+        /* The Stage - Expanded for wider projection */
+        .stage { 
+            position: relative; 
+            width: 1200px; /* Wider window */
+            height: 350px; 
+            background: #1a1a1a; 
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            border-radius: 15px; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 50px; 
+            overflow: hidden; 
+        }
+
+        /* Texture Background Layer */
+        #texture-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s;
+            background: repeating-linear-gradient(
+                45deg,
+                #1a1a1a,
+                #1a1a1a 15px,
+                #2a2a2a 15px,
+                #2a2a2a 30px
+            );
+        }
+        #texture-overlay.active { opacity: 1; }
+        
+        /* Fixation Cross */
+        .fixation { 
+            font-size: 90px; 
+            font-weight: bold; 
+            color: #444; 
+            user-select: none; 
+            z-index: 10; 
+            margin-right: 250px; 
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        /* Moving Target */
+        .dot { 
+            position: absolute; 
+            width: 65px; 
+            height: 65px; 
+            background: #ff4444; 
+            border-radius: 50%; 
+            left: 100%; 
+            transition: none; 
+            z-index: 5; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        
+        /* Filling-in Bar */
+        .bar { 
+            position: absolute; 
+            left: 0; 
+            width: 100%; 
+            height: 30px; 
+            background: #00796b; 
+            z-index: 1; 
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .bar.active { opacity: 1; }
+
+        /* Controls Panel */
+        .controls { 
+            background: #1e1e1e; 
+            padding: 25px; 
+            border-radius: 15px; 
+            width: 800px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            border: 1px solid #252525; 
+            margin-top: 30px;
+            z-index: 20;
+        }
+
+        button { 
+            padding: 15px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 4px; 
+            background: #333; 
+            color: #ccc; 
+            transition: 0.2s; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover { background: #444; color: #fff; }
+        .btn-active { background: #00796b; color: white; font-weight: bold; }
+        .span-2 { grid-column: span 2; }
+
+        /* Creator Tag */
+        .creator-tag {
+            position: fixed;
+            bottom: 20px;
+            right: 25px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.15);
+            font-weight: 300;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #444; letter-spacing: 3px; margin-bottom: 10px;">BLIND SPOT SCANNER</h2>
+
+    <div class="instructions">
+        Close your <b>LEFT eye</b>. Fixate on the <b>+</b>. <br>
+        When the target enters your blind spot, notice how the background seamlessly "fills in."
+    </div>
+
+    <div class="stage" id="stage">
+        <div id="texture-overlay"></div>
+        <div class="bar" id="fillBar"></div>
+        <div class="fixation">+</div>
+        <div class="dot" id="scanner"></div>
+    </div>
+
+    <div class="controls">
+        <button onclick="startScan()" class="span-2" id="scan-btn">Start 7s Scan</button>
+        <button onclick="toggleFill()" id="line-btn">Toggle Horizontal Line</button>
+        <button onclick="toggleTexture()" id="tex-btn">Toggle Background Texture</button>
+    </div>
+
+    <div class="creator-tag">Created by Jett Priewe</div>
+
+    <script>
+        const dot = document.getElementById('scanner');
+        const bar = document.getElementById('fillBar');
+        const tex = document.getElementById('texture-overlay');
+        const scanBtn = document.getElementById('scan-btn');
+        let animating = false;
+
+        function startScan() {
+            if (animating) return;
+            animating = true;
+            scanBtn.innerText = "Scanning Area...";
+            scanBtn.style.opacity = "0.5";
+            
+            // Reset position to far right
+            dot.style.transition = 'none';
+            dot.style.left = '100%';
+            
+            // Trigger 7-second scan (Faster than previous 10s)
+            setTimeout(() => {
+                dot.style.transition = 'left 7s linear';
+                dot.style.left = '-100px';
+            }, 50);
+
+            // Reset state
+            setTimeout(() => { 
+                animating = false; 
+                scanBtn.innerText = "Start 7s Scan";
+                scanBtn.style.opacity = "1";
+            }, 7050);
+        }
+
+        function toggleFill() {
+            const btn = document.getElementById('line-btn');
+            bar.classList.toggle('active');
+            btn.classList.toggle('btn-active');
+            updateTargetColor();
+        }
+
+        function toggleTexture() {
+            const btn = document.getElementById('tex-btn');
+            tex.classList.toggle('active');
+            btn.classList.toggle('btn-active');
+            updateTargetColor();
+        }
+
+        function updateTargetColor() {
+            // Adjusts dot color to blend with active filling-in background
+            if (tex.classList.contains('active')) {
+                dot.style.backgroundColor = "#2a2a2a"; // Match texture stripes
+            } else if (bar.classList.contains('active')) {
+                dot.style.backgroundColor = "#00796b"; // Match bar
+            } else {
+                dot.style.backgroundColor = "#ff4444"; // Default red
+            }
+        }
+    </script>
+</body>
+</html>
