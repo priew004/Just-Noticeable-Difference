@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JND Psych 101: Blind Experiment</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #121212; padding: 40px; color: #eee; overflow: hidden; position: relative; min-height: 100vh; margin: 0; }
+        .stage { display: flex; gap: 40px; align-items: center; margin-bottom: 50px; height: 350px; }
+        .box { width: 320px; height: 320px; border: 1px solid #333; box-shadow: 0 0 40px rgba(0,0,0,0.8); }
+        .label { margin-bottom: 10px; font-weight: bold; color: #555; text-transform: uppercase; font-size: 12px; }
+        
+        .controls { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 700px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border: 1px solid #252525; z-index: 10; }
+        
+        .slider-wrap { position: relative; height: 40px; background: #252525; border-radius: 5px; display: flex; align-items: center; padding: 0 10px; }
+        .slider-wrap span { font-size: 12px; color: #666; }
+        
+        input[type=range] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; }
+
+        button { padding: 12px; font-size: 13px; cursor: pointer; border: none; border-radius: 4px; background: #333; color: #ccc; transition: 0.2s; }
+        button:hover { background: #444; color: #fff; }
+        .btn-active { background: #00796b; color: white; font-weight: bold; }
+        
+        .teacher-panel { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; margin-top: 15px; padding-top: 15px; }
+        .delta-box { font-family: monospace; font-size: 18px; color: #00ffcc; opacity: 0; transition: opacity 0.3s; }
+        .visible { opacity: 1 !important; }
+
+        /* CREATOR TAG FOR COMMITTEE */
+        .creator-tag {
+            position: fixed;
+            bottom: 20px;
+            right: 25px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.15); /* Subtle but readable */
+            font-weight: 300;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #444; letter-spacing: 2px;">PERCEPTUAL THRESHOLD TEST</h2>
+
+    <div class="stage">
+        <div id="ref-box-container" style="opacity: 0;">
+            <div class="label">Reference (Standard)</div>
+            <div id="square-ref" class="box"></div>
+        </div>
+
+        <div>
+            <div class="label">Target (Comparison)</div>
+            <div id="square-target" class="box"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="slider-wrap">
+            <span>Ref Intensity (Stealth Slider)</span>
+            <input type="range" id="refSlider" min="0" max="100" value="70">
+        </div>
+
+        <div class="slider-wrap">
+            <span>Tar Intensity (Stealth Slider)</span>
+            <input type="range" id="tarSlider" min="0" max="100" value="50">
+        </div>
+
+        <button onclick="toggleReference()" id="btn-ref">Reveal Reference</button>
+        <button onclick="matchTarget()">Match Target to Ref</button>
+        <button onclick="changeHue()" style="grid-column: span 2;">Change Spectrum (Hue)</button>
+
+        <div class="teacher-panel">
+            <button onclick="toggleData()" style="font-size: 10px;">TOGGLE TEACHER HUD</button>
+            <div id="delta-display" class="delta-box">
+                REF: <span id="r-val">0</span>% | TAR: <span id="t-val">0</span>% | &Delta;: <span id="d-val">0</span>%
+            </div>
+        </div>
+    </div>
+
+    <div class="creator-tag">Created by Jett Priewe</div>
+
+    <script>
+        let hue = 160; 
+        const sRef = document.getElementById('square-ref');
+        const sTar = document.getElementById('square-target');
+        const rSlider = document.getElementById('refSlider');
+        const tSlider = document.getElementById('tarSlider');
+        
+        const rVal = document.getElementById('r-val');
+        const tVal = document.getElementById('t-val');
+        const dVal = document.getElementById('d-val');
+        const deltaDisplay = document.getElementById('delta-display');
+
+        function update() {
+            const r = rSlider.value;
+            const t = tSlider.value;
+            sRef.style.backgroundColor = `hsl(${hue}, ${r}%, 50%)`;
+            sTar.style.backgroundColor = `hsl(${hue}, ${t}%, 50%)`;
+            
+            rVal.innerText = r;
+            tVal.innerText = t;
+            dVal.innerText = Math.abs(r - t);
+        }
+
+        function toggleReference() {
+            const cont = document.getElementById('ref-box-container');
+            const btn = document.getElementById('btn-ref');
+            if (cont.style.opacity == "0") {
+                cont.style.opacity = "1";
+                btn.innerText = "Hide Reference";
+                btn.classList.add('btn-active');
+            } else {
+                cont.style.opacity = "0";
+                btn.innerText = "Reveal Reference";
+                btn.classList.remove('btn-active');
+            }
+        }
+
+        function matchTarget() {
+            tSlider.value = rSlider.value;
+            update();
+        }
+
+        function toggleData() {
+            deltaDisplay.classList.toggle('visible');
+        }
+
+        function changeHue() {
+            hue = Math.floor(Math.random() * 360);
+            update();
+        }
+
+        rSlider.oninput = update;
+        tSlider.oninput = update;
+        update();
+    </script>
+</body>
+</html>
