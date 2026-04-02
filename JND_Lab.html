@@ -71,7 +71,7 @@
 </head>
 <body>
 
-    <h2>THRESHOLD TEST</h2>
+    <h2>PERCEPTUALTHRESHOLD TEST</h2>
 
     <div class="stage">
         <div id="ref-box-container" class="box-wrap" style="opacity: 0;">
@@ -103,10 +103,10 @@
 
         <button onclick="toggleReference()" id="btn-ref">Reveal Reference</button>
         <button onclick="matchTarget()">Match Target</button>
-        <button onclick="changeHue()" style="grid-column: span 2;">Change Color Spectrum</button>
+        <button onclick="changeHue()" style="grid-column: span 2;">Change Color</button>
 
         <div class="teacher-panel">
-            <button onclick="toggleData()" style="font-size: 10px;">Teacher HUD</button>
+            <button onclick="toggleData()" style="font-size: 10px;">Intensity Values HUD</button>
             <div id="delta-display" class="delta-box">
                 R: <span id="r-val">70</span>% | T: <span id="t-val">0</span>% | &Delta;: <span id="d-val">70</span>%
             </div>
